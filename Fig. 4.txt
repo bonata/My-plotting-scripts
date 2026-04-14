@@ -1,0 +1,18 @@
+data <- read.table("TPbin4.txt", header = TRUE, row.names = 1, sep = "\t")
+data_matrix <- as.matrix(data)
+ 
+# 按行标准化（每行减去均值后除以标准差）
+data_scaled <- t(scale(t(data_matrix)))
+ 
+# 设置颜色梯度
+my_colors <- colorRampPalette(c("#2166AC", "white", "#B2182B"))(100)
+ 
+# 绘制热图（不显示数值，不聚类）
+pheatmap(data_scaled,
+         color = my_colors,
+          cluster_rows = FALSE,
+          cluster_cols = FALSE,
+          display_numbers = FALSE,
+          border_color = "grey80",
+          main = "Relative abundance heatmap (row-scaled")
+

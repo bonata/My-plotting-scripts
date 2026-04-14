@@ -1,0 +1,56 @@
+Region	Ecosystem	Abundance	Lineage		
+"Sweden: Jamtland, lake Lomtjarnan"	Lake_water	23.67904819	Mbacter		
+Canada: Alberta	Groundwater	24.65758015	Mbacter		
+"United Kingdom: Aberdeen, Scotland"	Agricultural_soil	5.622998658	Mbacter		
+Canada: Alberta	Groundwater	80.97078046	Mbacter		
+"United Kingdom: Aberdeen, Scotland"	Agricultural_soil	73.46993834	Mbacter		
+Canada: Alberta	Groundwater	46.23782106	Mbacter		
+Antarctica	Lake_sediment_enrichment	97.90861144	Mbacter		
+Canada: Alberta	Groundwater	93.17812268	Mbacter		
+"France: Besse-et-Saint-Anastaise, Lac Pavin"	Lake_water	52.43997682	Mbacter		
+"United Kingdom: Aberdeen, Scotland"	Agricultural_soil	3.543729177	Mbacter		
+China: Sanjiang Plain wetland soil	Permafrost_soil	86.66176504	Mbacter		
+Canada: Alberta	Groundwater	14.78029463	Mbacter		
+Italy:Maggiore	Freshwater	46.9872117	Mbacter		
+Antarctica	Lake_sediment_enrichment	97.04750131	Mbacter		
+Canada: Alberta	Groundwater	39.23808102	Mbacter		
+Uganda: Stanley glacier	Glacier_stream_sediment	52.08773639	Mbacter		
+Antarctica	Lake_sediment_enrichment	95.82925836	Mbacter		
+Canada: Alberta	Groundwater	33.78000295	Mbacter		
+Canada: Alberta	Groundwater	70.12528272	Mbacter		
+Sweden: Stordalen mire	Permafrost_soil	40.48827498	Mbacter		
+Canada: Alberta	Groundwater	17.50762406	Mbacter		
+Canada: Alberta	Groundwater	30.08049318	Mbacter		
+Canada: Alberta	Groundwater	20.2262992	Mbacter		
+China: Tibetan Plateau	Permafrost_soil	86.87429341	Mbacter		
+Canada: Alberta	Groundwater	20.47481202	Mbacter		
+Italy: Trento	Permafrost_soil	6.702444529	Mbacter		
+China: Tibetan Plateau	Permafrost_soil	86.00372425	Mbacter		
+Canada: Nunavut	Arctic_saline_spring_sediment	69.02920718	Mbacter		
+Canada: Alberta	Groundwater	10.2161055	Mbacter		
+Canada: Alberta	Groundwater	98.92785046	Mbacter		
+"France: Besse-et-Saint-Anastaise, Lac Pavin"	Lake_water	81.08129746	Mbacter		
+Canada: Alberta	Groundwater	22.72733487	Mbacter		
+China: Zoige wetland	freshwater_sediment_enrichment	36.82261991	Mbacter		
+China: Tibetan Plateau	Permafrost_soil	84.80362764	Mbacter		
+Sweden: lake Ki1	Lake_water	56.9789342	Mbacter		
+Canada: Alberta	Groundwater	89.04003083	Mbacter		
+Canada: Alberta	Groundwater	88.64388117	Mbacter		
+Canada: Nunavut	Groundwater	69.01856392	Mbacter		
+Italy: Trento	Permafrost_soil	6.703567839	Mbacter		
+Canada: Alberta	Groundwater	12.65849226	Mbacter		
+Canada: Alberta	Groundwater	77.53971155	Mbacter		
+Italy:Lugano	Freshwater	67.54292998	Mbacter		
+Canada: Alberta	Groundwater	98.75688897	Mbacter		
+Canada: Alberta	Groundwater	30.84708166	Mbacter		
+Canada: Alberta	Groundwater	73.71238836	Mbacter		
+Canada: Alberta	Groundwater	36.73669927	Mbacter		
+Switzerland	Freshwater	52.87419908	Mbacter		
+Antarctica	Lake_sediment_enrichment	98.07093949	Mbacter		
+Spain: Laguna del Tobar	Lake_water	15.52491491	Mbacter		
+USA: North Dakota	Wetland_soil_enrichment	91.83235526	Mbacter		
+Canada: Alberta	Groundwater	26.08348265	Mbacter		
+					
+					
+					
+					

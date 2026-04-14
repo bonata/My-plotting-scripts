@@ -1,0 +1,304 @@
+Fig. 7a
+
+# 加载包
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(RColorBrewer)
+
+# 1. 读取数据
+df <- read.table("relative_abun.txt", header = TRUE, sep = "\t", check.names = FALSE)
+colnames(df)[1] <- "Genus"
+sample_cols <- colnames(df)[2:ncol(df)]
+
+# 2. 转长表
+df_long <- df %>%
+  pivot_longer(cols = all_of(sample_cols),
+               names_to = "SampleID",
+               values_to = "Abundance")
+
+# 3. 计算相对丰度
+df_rel <- df_long %>%
+  group_by(SampleID) %>%
+  mutate(RelAbun = Abundance / sum(Abundance) * 100) %>%
+  ungroup()
+
+# 4. Top5 + Others
+df_top <- df_rel %>%
+  group_by(SampleID) %>%
+  mutate(rank = rank(-RelAbun, ties.method = "first")) %>%
+  mutate(Genus2 = ifelse(rank <= 5, Genus, "Others")) %>%
+  group_by(SampleID, Genus2) %>%
+  summarise(RelAbun = sum(RelAbun), .groups = "drop")
+
+# 5. 给所有属固定颜色，并单独指定 Methylobacter
+all_genera <- unique(df_top$Genus2)
+n_colors <- length(all_genera)
+
+# 生成默认调色板
+default_colors <- colorRampPalette(brewer.pal(12, "Set3"))(n_colors)
+names(default_colors) <- all_genera
+
+# 修改 Methylobacter 的颜色，例如改成红色
+if("Methylobacter" %in% all_genera){
+  default_colors["Methylobacter"] <- "#E41A1C"  # 红色
+}
+
+# 6. 绘制圆环图（每个样品单独保存）
+for (s in unique(df_top$SampleID)) {
+  df_plot <- df_top %>% filter(SampleID == s)
+  
+  p <- ggplot(df_plot, aes(x = 2, y = RelAbun, fill = Genus2)) +
+    geom_col(color = "white") +
+    coord_polar(theta = "y") +
+    xlim(0.5, 2.5) +
+    theme_void() +
+    theme(legend.position = "right") +
+    scale_fill_manual(values = default_colors)
+  
+  ggsave(filename = paste0(s, "_donut.png"), plot = p, width = 6, height = 6)
+}
+#######################
+# 必要包 
+library(ggplot2)
+library(maps)        # 提供 world 边界
+
+# 读取点数据（第一列=点名，第二列=经度，第三列=纬度）
+df <- read.table("Meth_MAGs.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+# 若文件列名不是标准的，下面这行给出通用命名（仅当列数>=3时生效）
+if (ncol(df) >= 3) names(df)[1:3] <- c("Site", "Longitude", "Latitude")
+
+# 世界地图数据
+world_map <- map_data("world")
+
+ggplot() +
+  # 海洋颜色
+  theme_void(base_size = 11) +
+  theme(
+    panel.background = element_rect(fill = "#d6dfed", colour = NA), # 海洋
+    plot.background  = element_rect(fill = "#d6dfed", colour = NA), # 四周同色
+    panel.grid = element_blank()
+  ) +
+  # 陆地
+  geom_polygon(
+    data = world_map,
+    aes(long, lat, group = group),
+    fill = "#d1ddc3", color = NA, linewidth = 0
+  ) +
+  # 灰色点
+  geom_point(
+    data = df,
+    aes(x = Longitude, y = Latitude),
+    color = "grey70", size = 1.1, alpha = 0.9
+  ) +
+  coord_fixed(1.3)  # 保持经纬比例
+###绘制世界地图并添加点的标签
+
+
+library(ggplot2)
+library(maps)
+library(ggrepel)
+library(dplyr)
+
+# 读取数据
+df <- read.table("Meth_MAGs.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+# 若列名不是标准的
+if (ncol(df) >= 3) names(df)[1:3] <- c("Site", "Longitude", "Latitude")
+
+# 世界地图数据
+world_map <- map_data("world")
+
+# 绘图
+ggplot() +
+  # 海洋
+  theme_void(base_size = 11) +
+  theme(
+    panel.background = element_rect(fill = "#d6dfed", colour = NA), 
+    plot.background  = element_rect(fill = "#d6dfed", colour = NA),
+    panel.grid = element_blank()
+  ) +
+  # 陆地
+  geom_polygon(
+    data = world_map,
+    aes(long, lat, group = group),
+    fill = "#d1ddc3", color = NA, linewidth = 0
+  ) +
+  # 灰色点
+  geom_point(
+    data = df,
+    aes(x = Longitude, y = Latitude),
+    color = "grey70", size = 1.1, alpha = 0.9
+  ) +
+  # 标签 + 连线指向点
+  geom_text_repel(
+    data = df,
+    aes(x = Longitude, y = Latitude, label = Site),
+    size = 3,
+    box.padding = 0.4,
+    point.padding = 0.4,
+    segment.color = "grey50",
+    segment.size = 0.5,
+    segment.alpha = 0.8,
+    arrow = arrow(length = unit(0.015, "npc")),
+    max.overlaps = Inf
+  ) +
+  coord_fixed(1.3)  # 保持经纬比例
+
+
+#局部区域密集点地图
+library(ggplot2)
+library(ggrepel)
+library(maps)
+library(dplyr)
+library(grid)
+
+# 读取数据
+df <- read.table("Meth_MAGs.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+if (ncol(df) >= 3) names(df)[1:3] <- c("Sample", "Longitude", "Latitude")
+
+# 选定样本（去掉 SRR13628065）
+selected_samples <- c("SRR13628066","SRR13727517","SRR13727518",
+                      "SRR13727519","SRR13727520","SRR13727521","SRR13727522",
+                      "SRR13727523","SRR13727524","SRR13727525","SRR13727526",
+                      "SRR13727527","SRR13727528","SRR13727529","SRR13727530",
+                      "SRR13727531","SRR13727532","SRR13727533","SRR13727534",
+                      "SRR13727535","SRR13727536","SRR13727537","SRR13727538",
+                      "SRR13727539","SRR13727540","SRR13727541")
+
+df_region <- df %>% filter(Sample %in% selected_samples)
+
+# 设置区域范围
+lon_range <- range(df_region$Longitude) + c(-2, 2)
+lat_range <- range(df_region$Latitude) + c(-2, 2)
+
+# 世界地图数据
+world_map <- map_data("world")
+
+# 绘图
+ggplot() +
+  # 海洋
+  theme_void(base_size = 11) +
+  theme(
+    panel.background = element_rect(fill = "#d6dfed", colour = NA),
+    plot.background  = element_rect(fill = "#d6dfed", colour = NA)
+  ) +
+  # 陆地
+  geom_polygon(
+    data = world_map,
+    aes(long, lat, group = group),
+    fill = "#d1ddc3",
+    color = NA
+  ) +
+  # 采样点
+  geom_point(
+    data = df_region,
+    aes(x = Longitude, y = Latitude),
+    color = "grey40", size = 2
+  ) +
+  # 标签 + 连线指向点（每个点都有线）
+  geom_text_repel(
+    data = df_region,
+    aes(x = Longitude, y = Latitude, label = Sample),
+    size = 2.8,
+    box.padding = 0.4,
+    point.padding = 0.4,
+    segment.color = "grey40",
+    segment.size = 0.5,
+    segment.alpha = 0.8,
+    arrow = arrow(length = unit(0.015, "npc")),
+    max.overlaps = Inf,
+    force = 5
+  ) +
+  # 放大到点所在区域
+  coord_fixed(1.3, xlim = lon_range, ylim = lat_range) +
+  labs(title = "Regional Map of Selected Sampling Sites (with Label Lines)")
+
+
+Fig. 7b(三层桑基图）
+##############
+library(networkD3)
+
+# 读取数据
+df <- read.table("Methylobacter_distribution.txt", header = TRUE, sep = "\t")
+
+# 构建节点（所有 Region, Ecosystem, Lineage 统一编号）
+nodes <- data.frame(name = unique(c(df$Region, df$Ecosystem, df$Lineage)))
+
+# 构建边（Region->Ecosystem, Ecosystem->Lineage）
+links1 <- data.frame(
+  source = match(df$Region, nodes$name) - 1,
+  target = match(df$Ecosystem, nodes$name) - 1,
+  value = df$Abundance
+)
+
+links2 <- data.frame(
+  source = match(df$Ecosystem, nodes$name) - 1,
+  target = match(df$Lineage, nodes$name) - 1,
+  value = df$Abundance
+)
+
+links <- rbind(links1, links2)
+
+# 绘制桑基图
+sankeyNetwork(
+  Links = links, Nodes = nodes,
+  Source = "source", Target = "target",
+  Value = "value", NodeID = "name",
+  fontSize = 12, nodeWidth = 20
+)
+
+Fig. 7b（两层桑基图）
+###变成两层
+library(networkD3)
+
+# 读取数据
+df <- read.table("Methylobacter_distribution.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+# 构建节点（只包含 Region 和 Ecosystem）
+nodes <- data.frame(name = unique(c(df$Region, df$Ecosystem)))
+
+# 构建边（只保留 Region -> Ecosystem）
+links <- data.frame(
+  source = match(df$Region, nodes$name) - 1,
+  target = match(df$Ecosystem, nodes$name) - 1,
+  value = df$Abundance
+)
+
+# 绘制两层桑基图
+sankeyNetwork(
+  Links = links, Nodes = nodes,
+  Source = "source", Target = "target",
+  Value = "value", NodeID = "name",
+  fontSize = 12, nodeWidth = 20
+)
+
+
+
+
+Fig. 7c
+#########################
+library(ggplot2)
+library(reshape2)
+
+# 1. 读取数据
+df <- read.table("abundance.txt", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+# 2. 转为长格式
+df_long <- melt(df, id.vars = "Sample", variable.name = "Gene", value.name = "Presence")
+
+# 3. 保持原始顺序并倒序显示（第一行在上方）
+df_long$Sample <- factor(df_long$Sample, levels = rev(unique(df$Sample)))
+
+# 4. 绘制圆圈图
+ggplot(df_long, aes(x = Gene, y = Sample)) +
+  geom_point(aes(shape = factor(Presence), fill = factor(Presence)),
+             size = 2.3, color = "black", stroke = 0.3) +
+  scale_shape_manual(values = c("0" = 21, "1" = 21)) +
+  scale_fill_manual(values = c("0" = "white", "1" = "#0072B2")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title = element_blank())
+
+

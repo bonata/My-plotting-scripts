@@ -1,0 +1,112 @@
+#Fig.3b
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(ggnewscale)
+
+mat <- read.table("ANI.txt", header = TRUE, row.names = 1, sep = "\t", check.names = FALSE)
+mat <- as.matrix(mat)
+
+ordered_genomes <- paste0("S", 1:30)
+mat <- mat[ordered_genomes, ordered_genomes]
+
+df <- melt(mat)
+colnames(df) <- c("Genome1", "Genome2", "Value")
+
+df <- df %>%
+  mutate(i = match(Genome1, ordered_genomes),
+         j = match(Genome2, ordered_genomes),
+         Type = case_when(
+           i < j ~ "AAI",
+           i > j ~ "ANI",
+           TRUE ~ "Diagonal"
+         ),
+         Show = case_when(
+           Type == "ANI" & Value >= 74 ~ TRUE,
+           Type == "AAI" & Value >= 60 ~ TRUE,
+           TRUE ~ FALSE
+         ),
+         Label = formatC(Value, format = "f", digits = 0))
+
+df_ani <- df %>% filter(Type == "ANI")
+df_aai <- df %>% filter(Type == "AAI")
+
+df_ani$Genome1 <- factor(df_ani$Genome1, levels = rev(ordered_genomes))
+df_ani$Genome2 <- factor(df_ani$Genome2, levels = ordered_genomes)
+df_aai$Genome1 <- factor(df_aai$Genome1, levels = rev(ordered_genomes))
+df_aai$Genome2 <- factor(df_aai$Genome2, levels = ordered_genomes)
+
+ani_colors <- c("#ffe29b", "#e98e5a", "#bb1708")
+aai_colors <- c("#b4d0ee", "#6c9984", "#083004")
+
+ggplot() +
+  geom_tile(data = df_ani, aes(x = Genome2, y = Genome1, fill = Value), color = "gray", size = 0.3) +
+  scale_fill_gradientn(colours = ani_colors, name = "ANI", oob = scales::squish) +
+  geom_text(data = df_ani %>% filter(Show), aes(x = Genome2, y = Genome1, label = Label), size = 2.5) +
+
+  new_scale_fill() +
+
+  geom_tile(data = df_aai, aes(x = Genome2, y = Genome1, fill = Value), color = "gray", size = 0.3) +
+  scale_fill_gradientn(colours = aai_colors, name = "AAI", oob = scales::squish) +
+  geom_text(data = df_aai %>% filter(Show), aes(x = Genome2, y = Genome1, label = Label), size = 2.5) +
+
+  theme_minimal(base_size = 10) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    panel.grid = element_blank()
+  ) +
+  labs(x = "", y = "")
+
+
+
+
+###Fig.3c
+data <- read.delim("Presence_Absence.txt", row.names = 1, check.names = FALSE)
+
+# 转换为矩阵并反转行顺序（使Species从上到下显示）
+mat <- as.matrix(data)
+mat <- mat[nrow(mat):1, ]  # 这行是关键修改，反转了行顺序
+
+# 设置图形参数
+symbols <- ifelse(mat == 1, 19, ifelse(mat == 0.5, 20, 1))  # 19=实心圆, 20=小实心圆, 1=空心圆
+colors <- ifelse(mat == 1, "black", ifelse(mat == 0.5, "gray60", "black"))
+point_size <- 1.2  # 统一设置所有点的大小
+
+# 设置图形边距（下左上右）
+par(mar = c(8, 8, 2, 2))  # 增加左右边距适应长名称
+
+# 创建空白画布
+plot(1, type = "n", 
+     xlim = c(0.5, ncol(mat) + 0.5), 
+     ylim = c(0.5, nrow(mat) + 0.5),
+     xlab = "", ylab = "", 
+     axes = FALSE,
+     main = "Gene Presence/Absence Pattern")
+
+# 添加坐标轴
+axis(1, at = 1:ncol(mat), labels = colnames(mat), las = 2, cex.axis = 0.8)
+axis(2, at = 1:nrow(mat), labels = rownames(mat), las = 1, cex.axis = 0.8)
+
+# 绘制点（确保所有点大小一致）
+for(i in 1:nrow(mat)){
+    for(j in 1:ncol(mat)){
+        # 对半存在(0.5)的点使用实心圆(pch=19)但灰色，保持大小一致
+        current_pch <- ifelse(mat[i,j] == 0.5, 19, symbols[i,j])
+        points(j, i, 
+               pch = current_pch, 
+               col = colors[i,j], 
+              cex = point_size)  # 统一大小
+    }
+}
+
+# 添加图例（显示三种状态）
+legend("topright",
+       legend = c("Present (1)", "Partial (0.5)", "Absent (0)"),
+      pch = c(19, 19, 1),  # 全部使用19确保大小一致，空心除外
+       col = c("black", "gray60", "black"),
+       pt.cex = point_size,  # 图例点大小与图中一致
+       bty = "n",
+       title = "Presence Status")
+
+
+
